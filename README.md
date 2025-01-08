@@ -14,6 +14,10 @@ step-3: Run the application
 
         docker compose up -d
 
+step-4: To Stop the application
+
+        docker compose down
+
 
 ##Browse:
 
