@@ -1,0 +1,84 @@
+---
+- name: Install and run gofr service
+  hosts: all
+  remote_user: "{{ user }}"
+  become: true
+  tags: prep
+
+  vars_prompt:
+    - name: "user"
+      prompt: "Please enter the username (with sudo) -- NOT root user or it will fail"
+      private: no
+  
+  # vars:
+  #   executable: "/bin/node"
+
+  tasks:
+
+
+# enable cpu and memory accounting by systemd
+
+  - replace:
+      path: /etc/systemd/system.conf
+      regexp: '#DefaultMemoryAccounting=no'
+      replace: 'DefaultMemoryAccounting=yes'
+      backup: no
+
+  - replace:
+      path: /etc/systemd/system.conf
+      regexp: '#DefaultCPUAccounting=no'
+      replace: 'DefaultCPUAccounting=yes'
+      backup: no
+
+
+  # redis is running under systemd
+  - name: Start redis
+    service:
+      name: redis
+      state: started
+      enabled: yes
+
+
+# postgres
+# sudo systemctl status postgresql@14-main.service
+  - name: run postgres
+    service: 
+      name: postgresql@14-main.service
+      state: started
+      enabled: yes
+      daemon_reload: yes
+
+
+
+# gofr
+  - name: install systemd template for gofr service
+    template:
+      src: gofr.service.j2
+      dest: /etc/systemd/system/gofr.service
+      mode: 0755
+      force: yes
+    # vars:
+    #   executable: "/usr/local/bin/npm"
+
+# start then restart gofr, to fix bug in loading fsh
+  - name: run backend
+    service: 
+      name: gofr.service
+      state: restarted
+      enabled: yes
+      daemon_reload: yes
+
+  - name: run backend
+    service: 
+      name: gofr.service
+      state: stopped
+      enabled: yes
+      daemon_reload: yes
+
+  - name: run backend
+    service: 
+      name: gofr.service
+      state: restarted
+      enabled: yes
+      daemon_reload: yes
+

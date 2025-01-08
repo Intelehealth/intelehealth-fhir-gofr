@@ -1,0 +1,83 @@
+---
+- name: Preparation for facility reconciliation
+  hosts: all
+  remote_user: "{{ user }}"
+  become: true
+  tags: prep
+
+  vars_prompt:
+    - name: "user"
+      prompt: "Please enter the username (with sudo)"
+      private: no
+
+  tasks:
+
+  # mongo is running under systemd (ubuntu)
+  - name: run postgres
+    service: 
+      name: postgresql@14-main.service
+      state: started
+      enabled: yes
+
+
+  # redis is running under systemd
+  - name: run redis
+    service:
+      name: redis
+      state: started
+      enabled: yes
+
+
+  - name: run app
+    service: 
+      name: gofr.service
+      state: started
+      enabled: yes
+
+
+  - name: gofr journalctl since last reboot
+    command: journalctl -u gofr.service -b
+    register: gofr
+
+
+  - debug:
+      msg: "{{ gofr.stdout_lines }}"
+
+
+  - name: postgres journalctl since last reboot
+    command: journalctl -u postgresql@14-main.service -b
+    register: postgres
+
+
+  - debug:
+      msg: "{{ postgres.stdout_lines }}"
+
+
+# status output
+  - name: status redis
+    command: systemctl status redis.service
+    register: statusr
+
+
+  - debug:
+      msg: "{{ statusr.stdout_lines }}"
+
+
+  - name: status postgres
+    command: systemctl status postgresql@14-main.service
+    register: statuspg
+
+
+  - debug:
+      msg: "{{ statuspg.stdout_lines }}"
+
+
+  - name: status gofr
+    command: systemctl status gofr.service
+    register: statusgofr
+
+    
+  - debug:
+      msg: "{{ statusgofr.stdout_lines }}"
+
+

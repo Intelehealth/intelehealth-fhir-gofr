@@ -1,0 +1,23 @@
+{
+    "version": "4.0.1",
+    "appType": "APP",
+    "name": "GOFR",
+    "description": "GOFR",
+    "launch_path": "index.html",
+    "icons": {
+        "16": "logo.jpeg",
+        "48": "logo.jpeg",
+        "128": "logo.jpeg"
+    },
+    "developer": {
+        "name": "Intrahealth - Digital Health Team",
+        "url": "http://digitalhealth.intrahealth.org"
+    },
+    "default_locale": "en",
+    "activities": {
+        "dhis": {
+            "href": "http://app.gofr.org/dhis",
+            "namespace":"GOFR"
+        }
+    }
+}
