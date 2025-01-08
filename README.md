@@ -19,6 +19,11 @@ step-4: To Stop the application
         docker compose down
 
 
-##Browse:
+## Browse:
 
         http://<ipaddress>:4000
+
+### Login Credentials:
+
+        user: root@gofr.org
+        pass: gofr
