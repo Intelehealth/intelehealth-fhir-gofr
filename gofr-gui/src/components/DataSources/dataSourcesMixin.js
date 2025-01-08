@@ -1,0 +1,76 @@
+import {
+  eventBus
+} from '../../main'
+import axios from 'axios'
+export const dataSourcesMixin = {
+  data () {
+    return {
+      name: '',
+      host: '',
+      username: '',
+      password: '',
+      sourceType: '',
+      limitShareByOrgId: false,
+      shareWithAll: false,
+      shareToSameOrgid: true,
+      invalidCharacters: ['"', '/', '\\', '.']
+    }
+  },
+  methods: {
+    sharingOptions () {
+      if (this.shareWithAll) {
+        this.shareToSameOrgid = false
+      }
+    },
+    addDataSource (source, partitionID, levelData) {
+      let formData = new FormData()
+      const clientId = this.$store.state.clientId
+      formData.append('host', this.host)
+      formData.append('sourceType', this.sourceType)
+      formData.append('source', source)
+      formData.append('orgId', this.$store.state.dhis.user.orgId)
+      formData.append('shareToSameOrgid', this.shareToSameOrgid)
+      formData.append('shareToAll', this.shareWithAll)
+      formData.append('limitByUserLocation', this.limitShareByOrgId)
+      formData.append('username', this.username)
+      formData.append('password', this.password)
+      formData.append('name', this.name)
+      formData.append('clientId', clientId)
+      formData.append('partitionID', partitionID)
+      formData.append('levelData', levelData)
+      formData.append('userID', this.$store.state.auth.userID)
+
+      var serverExists = this.$store.state.dataSources.find((dataSource) => {
+        return dataSource.host === this.host
+      })
+      axios.post('/datasource/addSource', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response) => {
+        eventBus.$emit('refresh-login')
+        eventBus.$emit('dataSourceSaved')
+        eventBus.$emit('dataSourceAddedSuccessfully')
+        eventBus.$emit('getDataSources')
+        if (serverExists) {
+          serverExists.name = this.name
+          serverExists.username = this.username
+          serverExists.password = response.data.password
+          serverExists.sourceType = this.sourceType
+        } else {
+          this.$store.state.dataSources.push({
+            name: this.name,
+            host: this.host,
+            sourceType: this.sourceType,
+            source: 'remoteServer',
+            username: this.username,
+            password: response.data.password
+          })
+        }
+      }).catch((err) => {
+        console.log(err)
+        eventBus.$emit('remoteServerFailedAdd')
+      })
+    }
+  }
+}

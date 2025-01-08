@@ -1,0 +1,37 @@
+dhis2App/index.html
+dhis2App/static
+facility-recon-gui/dist/static
+facility-recon-backend/lib/dbArchives/*
+**/facility-recon-backend/node_modules/
+
+# ansible
+*.retry
+.vagrant
+
+# macos
+*.DS_Store
+
+# terraform
+*.terraform*
+provider.tf
+terraform.tfstate
+terraform.tfstate.backup
+
+# ides
+.vscode
+
+# readthedocs
+./build
+_static
+_templates
+*.mo
+
+# tests
+tests/node_modules
+tests/screenshot*
+
+# notebooks
+.ipynb_checkpoints
+
+/.idea
+/log
